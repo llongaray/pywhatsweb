@@ -1,234 +1,165 @@
-# PyWhatsWeb 🚀
+# PyWhatsWeb
 
-**Biblioteca Python para automação do WhatsApp Web** - Baseada na funcionalidade do `whatsapp-web.js`
+Uma biblioteca Python para automação do WhatsApp Web, inspirada no [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js).
 
-[![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://pypi.org/project/pywhatsweb/)
+## 🚀 Características
 
-## ✨ Características
+- **Automação completa do WhatsApp Web** usando Selenium
+- **Envio e recebimento de mensagens** (texto, mídia, documentos)
+- **Gerenciamento de sessões** com QR Code
+- **Eventos em tempo real** (mensagens recebidas, conexão, etc.)
+- **API simples e intuitiva** para Python
+- **Suporte a múltiplas instâncias**
 
-- 🔐 **Autenticação via QR Code** - Conecte-se ao WhatsApp Web facilmente
-- 💾 **Múltiplos bancos de dados** - Suporte a SQLite, MySQL e armazenamento local
-- 📱 **Envio de mensagens** - Texto, imagens, documentos e mais
-- 🎯 **CLI integrado** - Use direto do terminal
-- 🌐 **Integração web** - Compatível com Flask e Django
-- 🔄 **Gerenciamento de sessões** - Múltiplas sessões simultâneas
-- 📊 **Callbacks e eventos** - Sistema de notificações em tempo real
-- 🛡️ **Tratamento de erros** - Exceções customizadas e robustas
+## 📦 Instalação
 
-## 🚀 Instalação
-
-### Via pip
 ```bash
 pip install pywhatsweb
 ```
 
-### Via source
+### Desenvolvimento
+
 ```bash
-git clone https://github.com/tileo/pywhatsweb.git
+git clone https://github.com/llongaray/pywhatsweb.git
 cd pywhatsweb
 pip install -e .
 ```
 
-### Dependências opcionais
-```bash
-# Para MySQL
-pip install pywhatsweb[mysql]
+## 🔧 Uso Básico
 
-# Para Flask
-pip install pywhatsweb[flask]
+### Exemplo Simples
 
-# Para Django
-pip install pywhatsweb[django]
+```python
+from pywhatsweb import WhatsAppClient
 
-# Para Celery
-pip install pywhatsweb[celery]
-```
+# Criar cliente
+client = WhatsAppClient()
 
-## 📖 Uso Básico
-
-### CLI (Terminal)
-```bash
 # Conectar ao WhatsApp
-pywhatsweb --session minha_sessao --connect
+client.connect()
+
+# Aguardar QR Code
+client.wait_for_qr()
 
 # Enviar mensagem
-pywhatsweb --session minha_sessao --send "5511999999999" "Olá, tudo bem?"
+client.send_message("5511999999999", "Olá! Teste da biblioteca PyWhatsWeb!")
 
-# Enviar imagem
-pywhatsweb --session minha_sessao --send-image "5511999999999" "caminho/imagem.jpg"
-
-# Ver status
-pywhatsweb --session minha_sessao --status
+# Fechar conexão
+client.disconnect()
 ```
 
-### Python
+### Exemplo com Eventos
+
 ```python
-from pywhatsweb import WhatsAppClient, DatabaseManager
+from pywhatsweb import WhatsAppClient
 
-# Inicializa banco de dados
-database = DatabaseManager("localhost")  # ou "sqlite", "mysql"
-
-# Cria cliente
-client = WhatsAppClient("minha_sessao", database)
-
-# Conecta
-if client.connect():
-    print("QR Code gerado! Escaneie com seu WhatsApp")
+def on_message_received(message):
+    print(f"Mensagem recebida de {message.sender}: {message.content}")
     
-    # Aguarda autenticação
-    if client.wait_for_authentication():
-        print("Autenticado!")
-        
-        # Envia mensagem
-        message_id = client.send_message("5511999999999", "Olá!")
-        print(f"Mensagem enviada: {message_id}")
-        
-        # Lista chats
-        chats = client.get_chats()
-        for chat in chats:
-            print(f"- {chat['name']} ({chat['number']})")
+    # Auto-resposta
+    if "oi" in message.content.lower():
+        client.send_message(message.sender, "Oi! Como posso ajudar?")
 
-# Sempre fecha o cliente
-client.close()
+# Configurar cliente com eventos
+client = WhatsAppClient()
+client.on_message = on_message_received
+
+# Conectar e aguardar
+client.connect()
+client.wait_for_qr()
+client.wait_forever()
 ```
 
-## 🗄️ Configuração de Banco de Dados
+## 📱 Funcionalidades
 
-### Localhost (padrão)
-```python
-database = DatabaseManager("localhost")
+### Mensagens
+
+- **Texto**: `send_message(phone, text)`
+- **Mídia**: `send_media(phone, file_path, caption="")`
+- **Documentos**: `send_document(phone, file_path, caption="")`
+- **Localização**: `send_location(phone, lat, lng, name="")`
+
+### Grupos
+
+- **Criar grupo**: `create_group(name, participants)`
+- **Adicionar participantes**: `add_participants(group_id, participants)`
+- **Remover participantes**: `remove_participants(group_id, participants)`
+- **Enviar para grupo**: `send_message_to_group(group_id, message)`
+
+### Eventos
+
+- `on_message`: Mensagem recebida
+- `on_connection`: Conexão estabelecida
+- `on_disconnection`: Desconexão
+- `on_qr`: QR Code gerado
+- `on_ready`: Cliente pronto
+
+## 🛠️ Configuração
+
+### Variáveis de Ambiente
+
+```bash
+# .env
+WHATSAPP_HEADLESS=false
+WHATSAPP_TIMEOUT=30
+WHATSAPP_USER_DATA_DIR=./whatsapp_data
 ```
 
-### SQLite
-```python
-database = DatabaseManager("sqlite", db_path="whatsapp.db")
-```
+### Configuração Avançada
 
-### MySQL
 ```python
-database = DatabaseManager(
-    "mysql",
-    host="localhost",
-    user="seu_usuario",
-    password="sua_senha",
-    database="whatsapp_db",
-    port=3306
+from pywhatsweb import WhatsAppClient, Config
+
+config = Config(
+    headless=False,
+    timeout=30,
+    user_data_dir="./whatsapp_data",
+    chrome_options=["--no-sandbox", "--disable-dev-shm-usage"]
 )
+
+client = WhatsAppClient(config=config)
 ```
 
-## 🌐 Integração com Web Frameworks
+## 🧪 Testes
 
-### Flask
-```python
-from flask import Flask, request, jsonify
-from pywhatsweb import WhatsAppClient, DatabaseManager
+```bash
+# Instalar dependências de desenvolvimento
+pip install -e ".[dev]"
 
-app = Flask(__name__)
-database = DatabaseManager()
-client = WhatsAppClient("web_session", database)
+# Executar testes
+pytest
 
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    data = request.get_json()
-    phone = data.get('phone')
-    message = data.get('message')
-    
-    message_id = client.send_message(phone, message)
-    return jsonify({'success': True, 'message_id': message_id})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+# Com cobertura
+pytest --cov=pywhatsweb
 ```
 
-### Django
-```python
-from django.http import JsonResponse
-from pywhatsweb import WhatsAppClient, DatabaseManager
+## 📚 API Reference
 
-def send_message(request):
-    if request.method == 'POST':
-        phone = request.POST.get('phone')
-        message = request.POST.get('message')
-        
-        database = DatabaseManager()
-        client = WhatsAppClient("django_session", database)
-        
-        if client.connect() and client.wait_for_authentication():
-            message_id = client.send_message(phone, message)
-            client.close()
-            return JsonResponse({'success': True, 'message_id': message_id})
-    
-    return JsonResponse({'success': False, 'error': 'Método não permitido'})
-```
+### WhatsAppClient
 
-## 🔧 Configuração Avançada
+#### Métodos Principais
 
-### Callbacks e Eventos
-```python
-def on_message_received(message_data):
-    print(f"Nova mensagem: {message_data}")
+- `connect()`: Conecta ao WhatsApp Web
+- `disconnect()`: Desconecta e fecha o navegador
+- `wait_for_qr()`: Aguarda o QR Code ser escaneado
+- `wait_forever()`: Mantém a conexão ativa
+- `send_message(phone, text)`: Envia mensagem de texto
+- `send_media(phone, file_path, caption="")`: Envia mídia
+- `send_document(phone, file_path, caption="")`: Envia documento
 
-def on_status_changed(status):
-    print(f"Status mudou: {status}")
+#### Propriedades
 
-client.set_message_callback(on_message_received)
-client.set_status_callback(on_status_changed)
-```
+- `is_connected`: Status da conexão
+- `phone_number`: Número do WhatsApp conectado
+- `qr_code`: QR Code atual (se disponível)
 
-### Múltiplas Sessões
-```python
-# Sessão 1
-client1 = WhatsAppClient("sessao_1", database)
-client1.connect()
+### Eventos
 
-# Sessão 2
-client2 = WhatsAppClient("sessao_2", database)
-client2.connect()
-
-# Ambas funcionam independentemente
-```
-
-## 📁 Estrutura do Projeto
-
-```
-pywhatsweb/
-├── core/                    # Funcionalidades principais
-│   ├── client.py          # Cliente WhatsApp
-│   ├── session.py         # Gerenciador de sessões
-│   ├── database.py        # Gerenciador de banco
-│   └── exceptions.py      # Exceções customizadas
-├── utils/                  # Utilitários
-│   └── helpers.py         # Funções auxiliares
-├── cli/                    # Interface de linha de comando
-│   └── main.py            # CLI principal
-├── examples/               # Exemplos de uso
-│   ├── basic_usage.py     # Uso básico
-│   ├── flask_integration.py # Integração Flask
-│   └── django_integration.py # Integração Django
-├── setup.py               # Configuração de instalação
-├── requirements.txt        # Dependências
-└── README.md              # Este arquivo
-```
-
-## 🧪 Exemplos
-
-Veja a pasta `examples/` para exemplos completos de:
-- Uso básico da biblioteca
-- Integração com Flask
-- Integração com Django
-- Uso com diferentes bancos de dados
-
-## 🚨 Limitações
-
-⚠️ **Importante**: Esta biblioteca é uma implementação educacional e de demonstração. Para uso em produção, considere:
-
-- Implementar autenticação real com WhatsApp Web
-- Adicionar validações de segurança
-- Implementar rate limiting
-- Adicionar logs e monitoramento
-- Testar extensivamente
+- `on_message(message)`: Chamado quando uma mensagem é recebida
+- `on_connection()`: Chamado quando a conexão é estabelecida
+- `on_disconnection()`: Chamado quando a conexão é perdida
+- `on_qr(qr_code)`: Chamado quando um novo QR Code é gerado
+- `on_ready()`: Chamado quando o cliente está pronto
 
 ## 🤝 Contribuindo
 
@@ -244,14 +175,13 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ## ⚠️ Disclaimer
 
-Esta biblioteca é fornecida "como está", sem garantias de qualquer tipo. O uso desta biblioteca para automação do WhatsApp deve seguir os Termos de Serviço do WhatsApp e leis aplicáveis.
+Esta biblioteca é para fins educacionais e de desenvolvimento. Use com responsabilidade e respeite os Termos de Serviço do WhatsApp.
 
-## 📞 Suporte
+## 🆘 Suporte
 
-- **Issues**: [GitHub Issues](https://github.com/tileo/pywhatsweb/issues)
-- **Documentação**: [README](https://github.com/tileo/pywhatsweb#readme)
-- **Email**: ti.leo@example.com
+- **Issues**: [GitHub Issues](https://github.com/llongaray/pywhatsweb/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/llongaray/pywhatsweb/discussions)
 
 ---
 
-**Desenvolvido com ❤️ pela TI Léo Team**
+Feito com ❤️ pela equipe TI Léo

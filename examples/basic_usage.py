@@ -1,168 +1,147 @@
+#!/usr/bin/env python3
 """
 Exemplo básico de uso do PyWhatsWeb
+
+Este exemplo demonstra como:
+1. Conectar ao WhatsApp Web
+2. Aguardar QR Code
+3. Enviar mensagem
+4. Desconectar
 """
 
-from pywhatsweb import WhatsAppClient, DatabaseManager
+import time
+from pywhatsweb import WhatsAppClient, Config
 
-def exemplo_basico():
-    """Exemplo básico de uso"""
-    
-    # Inicializa banco de dados (localhost por padrão)
-    database = DatabaseManager()
-    
-    # Cria cliente com sessão
-    client = WhatsAppClient("minha_sessao", database)
-    
-    try:
-        # Conecta ao WhatsApp
-        print("Conectando ao WhatsApp...")
-        if client.connect():
-            print("QR Code gerado! Escaneie com seu WhatsApp")
-            
-            # Aguarda autenticação
-            print("Aguardando autenticação...")
-            if client.wait_for_authentication(timeout=300):
-                print("Autenticado com sucesso!")
-                
-                # Envia mensagem
-                numero = "5511999999999"  # Substitua pelo número real
-                mensagem = "Olá! Esta é uma mensagem de teste do PyWhatsWeb!"
-                
-                print(f"Enviando mensagem para {numero}...")
-                message_id = client.send_message(numero, mensagem)
-                print(f"Mensagem enviada! ID: {message_id}")
-                
-                # Lista chats
-                print("\nChats disponíveis:")
-                chats = client.get_chats()
-                for chat in chats:
-                    print(f"- {chat['name']} ({chat['number']})")
-                
-            else:
-                print("Falha na autenticação")
-        else:
-            print("Erro ao conectar")
-            
-    except Exception as e:
-        print(f"Erro: {e}")
-    
-    finally:
-        # Sempre fecha o cliente
-        client.close()
 
-def exemplo_com_sqlite():
-    """Exemplo usando SQLite como banco"""
+def main():
+    """Função principal do exemplo"""
+    print("🚀 Iniciando exemplo do PyWhatsWeb...")
     
-    # Inicializa banco SQLite
-    database = DatabaseManager("sqlite", db_path="whatsapp.db")
-    
-    # Cria cliente
-    client = WhatsAppClient("sessao_sqlite", database)
-    
-    try:
-        # Conecta
-        if client.connect():
-            print("Conectado via SQLite!")
-            
-            # Aguarda autenticação
-            if client.wait_for_authentication():
-                print("Autenticado!")
-                
-                # Envia imagem
-                numero = "5511999999999"
-                imagem = "caminho/para/imagem.jpg"
-                
-                print("Enviando imagem...")
-                message_id = client.send_image(numero, imagem, "Imagem de teste!")
-                print(f"Imagem enviada! ID: {message_id}")
-                
-    except Exception as e:
-        print(f"Erro: {e}")
-    
-    finally:
-        client.close()
-
-def exemplo_com_mysql():
-    """Exemplo usando MySQL como banco"""
-    
-    # Inicializa banco MySQL
-    database = DatabaseManager(
-        "mysql",
-        host="localhost",
-        user="seu_usuario",
-        password="sua_senha",
-        database="whatsapp_db",
-        port=3306
+    # Configuração personalizada (opcional)
+    config = Config(
+        headless=False,  # Mostrar navegador
+        timeout=30,      # Timeout de 30 segundos
+        debug=True       # Ativar logs de debug
     )
     
-    # Cria cliente
-    client = WhatsAppClient("sessao_mysql", database)
+    # Criar cliente
+    client = WhatsAppClient(config=config)
     
     try:
-        # Conecta
-        if client.connect():
-            print("Conectado via MySQL!")
+        # Conectar ao WhatsApp Web
+        print("📱 Conectando ao WhatsApp Web...")
+        client.connect()
+        
+        # Aguardar QR Code
+        print("🔍 Aguardando QR Code...")
+        qr_code = client.wait_for_qr()
+        print(f"📋 QR Code gerado: {qr_code[:20]}...")
+        print("📱 Escaneie o QR Code com seu WhatsApp!")
+        
+        # Aguardar conexão
+        print("⏳ Aguardando conexão...")
+        if client.wait_for_connection():
+            print("✅ Conectado com sucesso!")
             
-            # Aguarda autenticação
-            if client.wait_for_authentication():
-                print("Autenticado!")
-                
-                # Envia documento
-                numero = "5511999999999"
-                documento = "caminho/para/documento.pdf"
-                
-                print("Enviando documento...")
-                message_id = client.send_document(numero, documento, "Documento de teste!")
-                print(f"Documento enviado! ID: {message_id}")
-                
+            # Aguardar um pouco para estabilizar
+            time.sleep(3)
+            
+            # Enviar mensagem de teste
+            phone = "5511999999999"  # Substitua pelo número real
+            message = "Olá! Esta é uma mensagem de teste do PyWhatsWeb! 🚀"
+            
+            print(f"📤 Enviando mensagem para {phone}...")
+            success = client.send_message(phone, message)
+            
+            if success:
+                print("✅ Mensagem enviada com sucesso!")
+            else:
+                print("❌ Falha ao enviar mensagem")
+            
+            # Aguardar um pouco antes de desconectar
+            print("⏳ Aguardando 5 segundos antes de desconectar...")
+            time.sleep(5)
+            
+        else:
+            print("❌ Falha na conexão")
+            
+    except KeyboardInterrupt:
+        print("\n⚠️ Interrupção do usuário")
     except Exception as e:
-        print(f"Erro: {e}")
-    
+        print(f"❌ Erro: {e}")
     finally:
-        client.close()
+        # Sempre desconectar
+        print("🔌 Desconectando...")
+        client.disconnect()
+        print("✅ Desconectado com sucesso!")
 
-def exemplo_com_callbacks():
-    """Exemplo usando callbacks"""
+
+def example_with_events():
+    """Exemplo usando eventos"""
+    print("\n🎯 Exemplo com eventos...")
     
-    database = DatabaseManager()
-    client = WhatsAppClient("sessao_callbacks", database)
+    def on_message_received(message):
+        print(f"📨 Nova mensagem de {message.sender.phone}: {message.content}")
+        
+        # Auto-resposta simples
+        if "oi" in message.content.lower():
+            response = "Oi! Como posso ajudar? 😊"
+            client.send_message(message.sender.phone, response)
+            print(f"🤖 Auto-resposta enviada: {response}")
     
-    # Define callbacks
-    def on_message_received(message_data):
-        print(f"Nova mensagem recebida: {message_data}")
+    def on_connection():
+        print("🔗 Conexão estabelecida!")
     
-    def on_status_changed(status):
-        print(f"Status mudou para: {status}")
+    def on_qr(qr_data):
+        print(f"🔍 QR Code gerado: {qr_data[:20]}...")
     
-    client.set_message_callback(on_message_received)
-    client.set_status_callback(on_status_changed)
+    def on_ready():
+        print("🚀 Cliente pronto para uso!")
+    
+    # Configurar cliente com eventos
+    client = WhatsAppClient()
+    client.on_message = on_message_received
+    client.on_connection = on_connection
+    client.on_qr = on_qr
+    client.on_ready = on_ready
     
     try:
-        if client.connect():
-            print("Conectado!")
+        # Conectar
+        client.connect()
+        
+        # Aguardar QR Code
+        client.wait_for_qr()
+        print("📱 Escaneie o QR Code!")
+        
+        # Aguardar conexão
+        if client.wait_for_connection():
+            print("✅ Conectado! Aguardando mensagens...")
             
-            if client.wait_for_authentication():
-                print("Autenticado!")
-                
-                # Simula recebimento de mensagem
-                print("Simulando recebimento de mensagem...")
-                # Aqui você implementaria a lógica real de recebimento
-                
+            # Manter conexão ativa
+            client.wait_forever()
+            
+    except KeyboardInterrupt:
+        print("\n⚠️ Interrupção do usuário")
     except Exception as e:
-        print(f"Erro: {e}")
-    
+        print(f"❌ Erro: {e}")
     finally:
-        client.close()
+        client.disconnect()
+
 
 if __name__ == "__main__":
-    print("=== Exemplo Básico ===")
-    exemplo_basico()
+    print("=" * 50)
+    print("PyWhatsWeb - Exemplo Básico")
+    print("=" * 50)
     
-    print("\n=== Exemplo com SQLite ===")
-    exemplo_com_sqlite()
+    # Executar exemplo básico
+    main()
     
-    print("\n=== Exemplo com MySQL ===")
-    exemplo_com_mysql()
+    # Perguntar se quer executar exemplo com eventos
+    try:
+        choice = input("\n🎯 Quer executar o exemplo com eventos? (s/n): ").lower()
+        if choice in ['s', 'sim', 'y', 'yes']:
+            example_with_events()
+    except KeyboardInterrupt:
+        print("\n👋 Até logo!")
     
-    print("\n=== Exemplo com Callbacks ===")
-    exemplo_com_callbacks()
+    print("\n🎉 Exemplos concluídos!")

@@ -1,0 +1,41 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# they will be requested for review when someone opens a pull request.
+*       @llongaray
+
+# Core library files
+/pywhatsweb/          @llongaray
+/pywhatsweb/client.py @llongaray
+/pywhatsweb/config.py @llongaray
+/pywhatsweb/models.py @llongaray
+/pywhatsweb/exceptions.py @llongaray
+
+# Tests
+/tests/               @llongaray
+
+# Examples
+/examples/            @llongaray
+
+# Documentation
+/docs/                @llongaray
+*.md                  @llongaray
+
+# Configuration files
+*.toml                @llongaray
+*.ini                 @llongaray
+*.yml                 @llongaray
+*.yaml                @llongaray
+
+# CI/CD
+/.github/workflows/   @llongaray
+/.github/             @llongaray
+
+# Docker
+Dockerfile            @llongaray
+docker-compose.yml    @llongaray
+
+# Build and packaging
+setup.py              @llongaray
+pyproject.toml        @llongaray
+requirements*.txt     @llongaray
+MANIFEST.in           @llongaray
