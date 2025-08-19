@@ -1,0 +1,16 @@
+# Dependências principais
+qrcode>=7.0
+Pillow>=8.0.0
+
+# Dependências opcionais
+# mysql-connector-python>=8.0.0  # Para MySQL
+# Flask>=2.0.0                   # Para integração com Flask
+# Django>=3.0.0                  # Para integração com Django
+# celery>=5.0.0                  # Para tasks em background
+
+# Dependências de desenvolvimento
+# pytest>=6.0.0
+# pytest-cov>=2.0.0
+# black>=21.0.0
+# flake8>=3.8.0
+# mypy>=0.800
