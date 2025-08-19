@@ -10,7 +10,7 @@ assignees: ''
 ## 📦 Tipo de Problema de Instalação
 - [ ] 🚫 Falha na instalação via pip
 - [ ] 🔧 Falha na instalação em modo desenvolvimento
-- [ ] 🐳 Problema com Docker
+
 - [ ] 📱 Dependências não encontradas
 - [ ] 🔌 Problema com Chrome/ChromeDriver
 - [ ] 🐍 Incompatibilidade de versão do Python
@@ -37,8 +37,6 @@ ModuleNotFoundError: No module named 'pywhatsweb'
 pip install pywhatsweb
 # ou
 pip install -e .
-# ou
-docker build -t pywhatsweb .
 ```
 
 ## 🔍 Ambiente de Instalação
@@ -91,18 +89,7 @@ docker build -t pywhatsweb .
 - [ ] ❓ Não sei
 - [ ] 🔄 A biblioteca deve gerenciar automaticamente
 
-## 🐳 Docker (se aplicável)
-**Versão do Docker:**
-- [ ] Docker Desktop
-- [ ] Docker Engine
-- [ ] Docker Compose
-- [ ] Outro: _________
 
-**Versão:**
-```bash
-docker --version
-# Resultado: [cole aqui]
-```
 
 ## 🔍 Passos Tentados
 Liste o que você já tentou para resolver o problema:

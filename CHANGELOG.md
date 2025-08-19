@@ -21,7 +21,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Modelos de dados estruturados
 - Testes unitários abrangentes
 - Configuração de CI/CD com GitHub Actions
-- Suporte a Docker e Docker Compose
+
 - Ferramentas de qualidade de código (Black, isort, flake8, mypy)
 - Pre-commit hooks
 - Documentação completa com exemplos

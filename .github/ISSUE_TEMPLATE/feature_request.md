@@ -59,7 +59,7 @@ client.nova_funcionalidade()
 - [ ] 🔐 Segurança e autenticação
 - [ ] 📊 Monitoramento e logs
 - [ ] 🌐 Integração com APIs externas
-- [ ] 🐳 Containerização e deploy
+- [ ] 🚀 Deploy e distribuição
 - [ ] Outro: _________
 
 ## 🔍 Alternativas Consideradas

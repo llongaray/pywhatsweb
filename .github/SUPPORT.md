@@ -84,14 +84,7 @@ pre-commit install
 make test
 ```
 
-### 🐳 Usando Docker
-```bash
-# Construir imagem
-docker build -t pywhatsweb .
 
-# Executar container
-docker run -it --rm pywhatsweb python -m pywhatsweb.cli --help
-```
 
 ### 🧪 Executando Testes
 ```bash

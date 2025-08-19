@@ -13,7 +13,7 @@ assignees: ''
 - [ ] 🌐 Problema com versão do Chrome
 - [ ] 🔌 Problema com ChromeDriver
 - [ ] 📱 Problema com arquitetura (x64, ARM64)
-- [ ] 🐳 Problema com Docker
+
 - [ ] 🔧 Problema com dependências
 - [ ] Outro: _________
 
@@ -98,7 +98,7 @@ pip list | grep -E "(selenium|webdriver-manager|requests|python-dotenv|qrcode|pi
 - [ ] Testes automatizados
 - [ ] Produção
 - [ ] CI/CD
-- [ ] Container Docker
+
 - [ ] Outro: _________
 
 ## 📊 Comportamento Esperado vs. Atual
